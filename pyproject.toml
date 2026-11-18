@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lyratools"
+dynamic = ["version"]
+description = "Analysis tools for LYRA / AREPO galaxy-formation simulations"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Thales A. Gutcke", email = "gutcke@hawaii.edu" }]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.9",
+    "astropy>=5.0",
+    "h5py>=3.7",
+    "matplotlib>=3.6",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
+keywords = ["astrophysics", "simulations", "AREPO", "LYRA", "galaxy formation"]
+
+[project.optional-dependencies]
+# only for lyratools.add_fields / photometry.add_magnitude_fields on scida datasets
+scida = ["scida>=0.3", "dask>=2023"]
+
+[project.scripts]
+lyra-timeseries = "lyratools.timeseries.run:main"
+
+[project.urls]
+Repository = "https://github.com/thalesada/lyratools"
+
+[tool.setuptools.dynamic]
+version = { attr = "lyratools._version.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+lyratools = ["styles/*.mplstyle", "data/*.txt"]

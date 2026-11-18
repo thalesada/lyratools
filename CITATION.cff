@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: >-
+  If you use lyratools, please cite it as below, and cite the papers of the data tables you use
+  (lyratools.config.describe() lists them).
+title: "lyratools: analysis tools for LYRA / AREPO simulations"
+type: software
+version: 0.1.0
+license: MIT
+authors:
+  - family-names: Gutcke
+    given-names: Thales A.
+    orcid: https://orcid.org/0000-0001-6179-7701
+    affiliation:  University of Hawaii
+repository-code: "https://github.com/thalesada/lyratools"
+keywords:
+  - astrophysics
+  - simulations
+  - AREPO
+  - LYRA
+references:
+  - type: article
+    title: "LYRA - I. Simulating the multiphase ISM of a dwarf galaxy with variable energy supernovae from individual stars"
+    authors:
+      - family-names: Gutcke
+        given-names: Thales A.
+      - family-names: Pakmor
+        given-names: Rüdiger
+      - family-names: Naab
+        given-names: Thorsten
+      - family-names: Springel
+        given-names: Volker
+    journal: "Monthly Notices of the Royal Astronomical Society"
+    volume: 501
+    start: 5597
+    year: 2021

@@ -1,0 +1,114 @@
+## matplotlib style mimicking the figures in Gutcke et al. 2022 (LYRA III)
+##
+## Use as a style sheet:
+##     import matplotlib.pyplot as plt
+##     plt.style.use("/path/to/lyra.mplstyle")
+## or copy to ~/.config/matplotlib/stylelib/lyra.mplstyle and use plt.style.use("lyra").
+## Renaming it to "matplotlibrc" in your working directory also works.
+
+## ---------------------------------------------------------------------------
+## Figure: sized for an AASTeX two-column layout (column width ~3.4 in)
+## ---------------------------------------------------------------------------
+figure.figsize      : 3.4, 2.6
+figure.dpi          : 150
+figure.facecolor    : white
+figure.autolayout   : False
+figure.subplot.hspace : 0.0     # stacked panels share edges, as in Figs. 2 and 3
+figure.subplot.wspace : 0.25
+
+savefig.dpi         : 300
+savefig.format      : pdf
+savefig.bbox        : tight
+savefig.pad_inches  : 0.02
+pdf.fonttype        : 42
+ps.fonttype         : 42
+
+## ---------------------------------------------------------------------------
+## Fonts: Computer Modern serif, matching the LaTeX text
+## ---------------------------------------------------------------------------
+font.family         : serif
+font.serif          : CMU Serif, Computer Modern Roman, cmr10, DejaVu Serif, Times New Roman
+font.size           : 8
+mathtext.fontset    : cm
+axes.formatter.use_mathtext : True
+axes.unicode_minus  : False     # cmr10 lacks the unicode minus glyph
+## For exact LaTeX typesetting (slower, needs a LaTeX install), uncomment:
+# text.usetex       : True
+# text.latex.preamble : \usepackage{amsmath}
+
+## ---------------------------------------------------------------------------
+## Axes
+## ---------------------------------------------------------------------------
+axes.linewidth      : 1.5
+axes.edgecolor      : black
+axes.facecolor      : white
+axes.labelsize      : 12
+axes.titlesize      : 8
+axes.labelpad       : 3.0
+axes.grid           : False
+axes.xmargin        : 0
+axes.ymargin        : 0.02
+axes.formatter.limits : -5, 6     # plain numbers like 25000 instead of an offset
+## Halo colours used throughout the paper: HaloA..HaloE, then black/grey
+axes.prop_cycle     : cycler('color', ['orangered',  'dodgerblue', '9ACD32', 'FF8C00', '1E90FF', '000080', '000000', '808080'])
+
+## ---------------------------------------------------------------------------
+## Ticks: inward on all four sides, with minor ticks
+## ---------------------------------------------------------------------------
+xtick.direction     : in
+ytick.direction     : in
+xtick.top           : True
+ytick.right         : True
+xtick.minor.visible : True
+ytick.minor.visible : True
+xtick.major.size    : 4.0
+ytick.major.size    : 4.0
+xtick.minor.size    : 2.0
+ytick.minor.size    : 2.0
+xtick.major.width   : 0.8
+ytick.major.width   : 0.8
+xtick.minor.width   : 0.6
+ytick.minor.width   : 0.6
+xtick.major.pad     : 3.0
+ytick.major.pad     : 3.0
+xtick.labelsize     : 7
+ytick.labelsize     : 7
+
+## ---------------------------------------------------------------------------
+## Lines and markers
+## ---------------------------------------------------------------------------
+lines.linewidth     : 1.2
+lines.markersize    : 5
+lines.markeredgewidth : 0.8
+lines.dash_capstyle : butt
+lines.solid_capstyle : butt
+lines.dashed_pattern : 3.0, 2.0
+lines.dotted_pattern : 1.0, 1.5
+scatter.marker      : D         # filled diamonds for simulated haloes (Figs. 7, 8, 10)
+errorbar.capsize    : 1.5
+
+## shaded bands (reionization, SF episodes) via axvspan/fill_between
+patch.linewidth     : 0.0
+patch.facecolor     : C6
+hatch.color         : grey
+
+## ---------------------------------------------------------------------------
+## Legend: small, frameless, short handles
+## ---------------------------------------------------------------------------
+legend.frameon      : False
+legend.fontsize     : 12
+legend.loc          : best
+legend.handlelength : 1.8
+legend.handletextpad : 0.5
+legend.borderaxespad : 0.4
+legend.labelspacing : 0.25
+legend.numpoints    : 1
+legend.scatterpoints : 1
+
+## ---------------------------------------------------------------------------
+## Images and colour maps (Fig. 9 uses a spectral map, Fig. 12 diverging maps)
+## ---------------------------------------------------------------------------
+image.cmap          : Spectral_r
+image.interpolation : nearest
+image.origin        : lower
+image.aspect        : auto

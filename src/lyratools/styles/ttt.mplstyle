@@ -1,0 +1,31 @@
+## the matplotlib settings from the original TTT.py
+font.family         : serif
+font.size           : 16
+axes.titlesize      : 20
+axes.labelsize      : 16
+axes.linewidth      : 2
+axes.prop_cycle     : cycler('color', ['orangered', 'dodgerblue', 'yellowgreen', 'darkorange', 'g', 'k'])
+lines.linewidth     : 3
+lines.markersize    : 10
+xtick.labelsize     : 14
+ytick.labelsize     : 14
+xtick.major.width   : 2
+ytick.major.width   : 2
+xtick.minor.width   : 2
+ytick.minor.width   : 2
+xtick.major.size    : 8
+ytick.major.size    : 8
+xtick.minor.size    : 4
+ytick.minor.size    : 4
+xtick.direction     : in
+ytick.direction     : in
+figure.figsize      : 8, 5
+legend.numpoints    : 1
+legend.fontsize     : 12
+legend.frameon      : False
+savefig.dpi         : 300
+savefig.pad_inches  : 0.03
+savefig.bbox        : tight
+savefig.format      : pdf
+hist.bins           : 100
+patch.linewidth     : 3
