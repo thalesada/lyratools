@@ -95,40 +95,9 @@ centred on the median position of the inert initial-condition stars (`GFM_Initia
 `halo.stars` and kept as `halo.inert`. `values()` and all derived fields work as for cosmological runs. `SNTime` in the isolated FUV runs holds absolute code times (alive: time of death > `Time`; dead:
 -time of death), not lifetimes in Gyr: `load_isolated` detects this (`halo.sntime_convention`) for `stars.t_death`, and the time-series code converts it to lifetimes for its SN counts and energies (before this fix it read death times as lifetimes and undercounted SNe in isolated runs, e.g. 12 instead of 22 in the last 10 Myr of isolated_fuv snapshot 102; rerun affected isolated time series with --redo).
 
-## FUV field (`lyratools.fuv`)
+## FUV-run snapshot fields
 
-`fuv.c` (arepo commit 9c0894e56b, which wrote the isolated FUV snapshots) reproduced offline:
-
-```python
-tab = lt.fuv.luv_table("LUV_cube.txt")                         # same grid, units and edge clamping as fuv.c
-st = halo.stars
-sel = lt.fuv.produces_fuv(st.m_init, lt.units.as_array(st["SNTime"]))   # alive single stars, 4 < m <= 150 Msun
-L = tab(st.m_init[sel], st.age[sel], lt.units.as_array(st["GFM_Metallicity"])[sel])      # erg/s
-g = halo.gas
-rc = lt.fuv.cell_radius(g.mass, g.values("Density", "Msun/kpc**3"))                     # kpc
-G0 = lt.fuv.g0(g.pos, rc, st.pos[sel], L, temperature=g.values("Temperature"))         # Habing
-G0_fast = lt.fuv.g0(g.pos, rc, st.pos[sel], L, method="tree", theta=0.5)
-```
-
-`g0` is the optically thin sum with fuv.c's softening by the cell radius, 50 kpc cut, T >= 1e5 K cut and 1e-17 erg cm^-3
-floor; `method="direct"` is exact (chunked over cells), `method="tree"` a one-level Barnes-Hut approximation (~0.1-1%
-at theta = 0.5). Against `FUV_G0` of isolated snapshot 102 (20,000 cells, 513 sources): |G0/G0_snap - 1| median 0.5%,
-99th percentile 1.2%, no cell zero in one and non-zero in the other (`tests/check_fuv_snapshot.py`). The +0.5% is a
-uniform offset whose origin is not identified. The ionising-photon Q(H) table is not implemented: no such table or
-reader exists in fuv.c yet.
-
-## Cooling tables (`lyratools.cooling`)
-
-`tab = lt.cooling.read_table(path)` reads the converted PS20 file (`cooling_ploeckinger_shield1.hdf5`) or a
-Hybrid-CHIMES G0 table (`VIRGODWARF_G0_COOLING_TABLE`) and interpolates as AREPO (cooling_metal.c with
-VIRGODWARF_LOG_COOLING_INTERPOLATION; cooling_g0_table.c): log10 rates in z, log G0, log nH and log T, net rates
-linear in Z/Zsun (Zsun = 0.0127) between bins, no metal rate below the second Z bin or outside the T range, super-solar
-scaled. `tab.rates(nH, T, Z, G0, z)` returns cooling, heating, net (= heating - cooling, the sign of `GFM_CoolingRate`)
-and, for G0 tables, the photoelectric channel; `lt.cooling.t_eq(tab, nH, Z, G0, z)` the lowest stable equilibrium
-temperature. AREPO's atomic H/He network (cooling.c, with the TREECOOL background) is not reproduced; pass
-`primordial=f(nH, T, z)` to add it.
-
-FUV-run snapshot fields (`lt.fields.FIELD_REGISTRY`): `FUV_G0` (Habing), `FUV_PEHeatingRate` (erg cm^3 s^-1),
+Fields written by LYRA runs with FUV heating (`lt.fields.FIELD_REGISTRY`): `FUV_G0` (Habing), `FUV_PEHeatingRate` (erg cm^3 s^-1),
 `G0TableDebugBypass` (earlier `G0TableBypass`), and the derived `net_true`. In the old scheme `GFM_CoolingRate`
 excludes the photoelectric heating, so `net_true = GFM_CoolingRate + FUV_PEHeatingRate`; with the G0 table it is part
 of `GFM_CoolingRate` (except in bypassed cells), so `net_true = GFM_CoolingRate`. The scheme is read from the
@@ -140,8 +109,6 @@ snapshot's Config (`VIRGODWARF_G0_COOLING_TABLE`).
 |---|---|
 | `fields` | derived fields (numpy, computed on first access on a Region; `add_fields(ds)` registers them as scida recipes): gas `nH`, `Temperature` (only if not stored), `Pressure_k`, `CoolingTime`, `SelfShieldingFactor`, `net_true`; stars `FormationTime`, `Age`, `SNState`, `DeathTime`, `ESN`; both `Z_Zsun`, `12logOH` and `[X/Y]` ratios (`Fe_H`, `O_Fe`, `N_O`, `C_H`, ...); `FIELD_REGISTRY` (units and meaning of the FUV-run fields) |
 | `region` | `load_halo(snap, halo_id, fields=..., center='group'|'subhalo'|coords, rest_frame=None|'group'|'subhalo'|'particles', selection='fof'|'box', dtype=..., groupdir=...)` loads the FoF group as saved (catalogue centre, no recomputation); `load_isolated(path)` for isolated runs; `open_snapshot`; `Region` (recenter, face_on, rotate, remove_bulk_velocity, within, within_r200, select, close); `Particles` (lazy fields, `values`, `unit_of`, `column`, `load`, `available`, `has`, `alive`); `shrinking_sphere` (explicit, optional) |
-| `fuv` | AREPO's fuv.c offline: `luv_table` (LUV_cube.txt), `produces_fuv`, `g0` (optically thin G0, direct or tree), `cell_radius`, `temperature` |
-| `cooling` | LYRA cooling tables (converted PS20, Hybrid-CHIMES G0 tables) with AREPO's interpolation: `read_table`, `CoolingTable.rates`, `net_rate`, `t_eq` |
 | `sfh` | `sfh`, `sfr_trailing`, `find_bursts`, `burstiness_stats`, `compute_ks`, `compute_ks_grid`, `sfr_from_density`, `phase_diagram` |
 | `flows` | `spherical_flow_rate`, `disk_flow_rate`, `loading_factors`, `loading_factors_isolated` |
 | `profiles` | `density_profile`, `rotation_curve`, `surface_brightness_profile`, `half_mass_radius`, `half_light_radius`, `ellipticity`, `radii` |
@@ -295,20 +262,13 @@ where to get it. `python scripts/fetch_data.py DIR` downloads the public ones (M
 Behroozi et al. 2013 release; with `--large` also the 2.2 GB Ploeckinger & Schaye 2020 table) and lists the rest
 (LYRA input tables, PARSEC isochrones from the CMD web interface, JWST zeropoints from JDox).
 
-## Release status
-
-`fuv`, `cooling` and the LC18 yields option (`yields_lc18.py`) are intended for a later public release; see
-`RELEASE.md`. Everything else, and the tests, run without them.
-
 ## Tests
 
 `python tests/run_tests.py` builds synthetic tables, a synthetic LYRA snapshot, a small two-file zoom snapshot with a
 two-group catalogue (`tests/make_zoom.py`, used by `tests/test_region.py` for region field access and unit
-conversions, plus `load_isolated` on the synthetic isolated run), synthetic LUV and cooling tables (`test_fuv.py`,
-`test_cooling.py`) and a 3-snapshot zoom sequence, and checks every module; it exits non-zero if any check fails. With `LYRATOOLS_FUV_SNAP=<snapdir>` and
-`LYRATOOLS_LUV=<LUV_cube.txt>` it also reproduces `FUV_G0` of a real isolated FUV snapshot (`tests/check_fuv_snapshot.py`); otherwise that check is
-reported as skipped. GitHub Actions (`.github/workflows/tests.yml`) runs the tests on Python 3.10-3.12 with and
-without scida, and on the release tree without the later-release modules.
+conversions, plus `load_isolated` on the synthetic isolated run) and a 3-snapshot zoom sequence, and checks every module; it exits non-zero if any check fails.
+GitHub Actions (`.github/workflows/tests.yml`) runs the tests on Python 3.10-3.12 with and
+without scida.
 If scida is installed, `test_all.py` and `test_region.py` also check the optional scida helpers (`add_fields`,
 `add_magnitude_fields`, `load_halo` on a scida dataset); scida builds the cache of a multi-file snapshot in a process
 pool, so scripts that `load` multi-file snapshots with scida need an `if __name__ == "__main__":` guard.
