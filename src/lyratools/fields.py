@@ -149,3 +149,12 @@ def add_fields(ds, overwrite=True):
     require_scida("lyratools.add_fields")
     from .scida_fields import add_fields as _add
     return _add(ds, overwrite=overwrite)
+
+
+def load_scida(path, catalog=None, units=True, **kwargs):
+    """scida.load of a LYRA snapshot with the code units of its header (requires scida);
+    see lyratools.scida_fields.load_scida."""
+    from .units import require_scida
+    require_scida("lyratools.load_scida")
+    from .scida_fields import load_scida as _load
+    return _load(path, catalog=catalog, units=units, **kwargs)

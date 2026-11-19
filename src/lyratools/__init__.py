@@ -16,7 +16,7 @@ from . import (chemistry, config, constants, cosmology, darkmatter, diagnostics,
                voronoi, yields)
 from .config import set_data_dir, set_data_file
 from .cosmology import TimeConversion
-from .fields import add_fields
+from .fields import add_fields, load_scida
 from .plotting import use_style
 from .region import Region, load_halo, load_isolated, open_snapshot, shrinking_sphere
 

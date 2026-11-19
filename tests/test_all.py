@@ -163,9 +163,27 @@ rcs, sb = profiles.surface_brightness_profile(st.pos * 1e3, Lv, np.linspace(0, 1
 check("surface_brightness_profile", np.isfinite(sb).sum() > 10)
 check("half_light_radius", 0 < profiles.half_light_radius(st.r, Lv) < 2)
 if HAVE_SCIDA:     # optional scida helpers
-    ds = load(SNAP, catalog=GROUPS, units=True)
+    # scida's default unit file assumes code_length = ckpc/h; the fixture (like LYRA) uses Mpc
+    from lyratools.scida_fields import check_code_units
+    ds0 = load(SNAP, catalog="none", units=True)
+    try:
+        check_code_units(ds0)
+        check("plain scida.load: units agree with the header (user unit file)", True)
+    except ValueError as e:
+        try:
+            lt.add_fields(ds0); refused = False
+        except ValueError:
+            refused = True
+        check("add_fields refuses scida default units that disagree with the header", refused, str(e)[:70])
+    ds = lt.load_scida(SNAP, catalog=GROUPS)
     lt.add_fields(ds)
     check("add_fields (scida recipes) match the numpy fields", np.allclose(np.sort(ds.data["PartType0"]["nH"].compute().magnitude), np.sort(nH), rtol=1e-3))   # scida uses its own Msun
+    with h5py.File(SNAP, "r") as f:
+        hd = f["Header"].attrs
+        kpc_per_code = hd["UnitLength_in_cm"] / 3.085678e21 * hd["Time"] / hd["HubbleParam"]
+    want = np.asarray(halo.cat["GroupPos"][0]) * kpc_per_code             # raw code units -> physical kpc
+    gpos = ds.catalog.data["Group"]["GroupPos"][0].compute().to("kpc").magnitude
+    check("load_scida: catalogue shares the header units", np.allclose(gpos, want, rtol=1e-3), f"{gpos} vs {want} kpc")
     bands = photometry.add_magnitude_fields(ds)
     Vf = ds.data["PartType4"]["Vmag"][:2000].compute()
     check("add_magnitude_fields (lazy)", len(bands) == 3 and np.isfinite(Vf).all())

@@ -24,6 +24,11 @@ blk = lambda step, t, tot: (f"Step {step}, Time: {t}, CPUs: 32, MultiDomains: 8,
 # scida creates the cache of a multi-file snapshot in a process pool: under the spawn start method
 # (macOS default) the workers re-import this module, so everything runs behind the main guard.
 if __name__ == "__main__":
+    # The test files run through runpy as __main__ without a main guard of their own, so spawned or
+    # forkserver workers (macOS default; Linux from Python 3.14) would re-run a whole test file.
+    if os.name == "posix":
+        import multiprocessing
+        multiprocessing.set_start_method("fork", force=True)
     HERE = os.path.dirname(os.path.abspath(__file__))
     DATA = os.path.join(HERE, "_data")
     shutil.rmtree(DATA, ignore_errors=True)

@@ -1,7 +1,7 @@
 # lyratools
 
 Analysis tools for LYRA / AREPO simulations. Snapshots and group catalogues are read with h5py
-(only the needed index ranges and columns); scida is optional (`lt.add_fields(ds)` for scida datasets).
+(only the needed index ranges and columns); scida is optional (`ds = lt.load_scida(path)`, then `lt.add_fields(ds)` for scida datasets).
 A port of `TTT.py` (loadmodules) to an installable package.
 
 ```bash
@@ -272,3 +272,8 @@ without scida.
 If scida is installed, `test_all.py` and `test_region.py` also check the optional scida helpers (`add_fields`,
 `add_magnitude_fields`, `load_halo` on a scida dataset); scida builds the cache of a multi-file snapshot in a process
 pool, so scripts that `load` multi-file snapshots with scida need an `if __name__ == "__main__":` guard.
+
+scida's default unit file for cosmological AREPO runs assumes `code_length = ckpc/h`; LYRA runs use Mpc
+(`UnitLength_in_cm = 3.086e24`), so with a plain `scida.load` lengths and densities are wrong by powers of 1000.
+`lt.load_scida(path, catalog=None)` loads the snapshot and its catalogue with the code units of the header, and
+`lt.add_fields(ds)` refuses a dataset whose `code_length` disagrees with the header.

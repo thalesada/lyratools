@@ -14,6 +14,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 - Later-release marking (`lyratools/_release.py`, `RELEASE.md`, `scripts/make_release.py`): `fuv`, `cooling`
   and the LC18 yields option (now `lyratools/yields_lc18.py`) can be left out of a public tag.
 - GitHub Actions: `tests/run_tests.py` on Python 3.10-3.12, with and without scida.
+- `lt.load_scida(path, catalog=None)`: `scida.load` of a LYRA snapshot and its catalogue with the code units
+  of the header (`lyratools.scida_fields.code_unit_hints`).
+
+### Fixed
+- scida fields of LYRA snapshots: scida's default unit file assumes `code_length = ckpc/h`, LYRA uses Mpc, so
+  `add_fields` on a plain `scida.load` gave `nH` 1e9 too large on a fresh install. `add_fields` now checks
+  `code_length` against the header and points to `lt.load_scida`.
+- `tests/run_tests.py` uses the fork start method on POSIX, so scida's process pool works on macOS.
 
 ### Changed
 - scida is an optional extra (`pip install "lyratools[scida]"`); scida/dask are imported only by
